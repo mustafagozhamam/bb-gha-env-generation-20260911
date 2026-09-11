@@ -16,3 +16,4 @@ jobs:
     uses: mustafagozhamam/bb-gha-env-callee-20260911/.github/workflows/protected-callee.yml@main
     with:
       marker: ${{ inputs.marker }}
+    secrets: inherit
