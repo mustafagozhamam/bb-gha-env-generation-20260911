@@ -48,6 +48,7 @@ jobs:
       - name: Record immutable approved tuple
         env:
           MARKER: ${{ inputs.marker }}
+          CANARY: ${{ secrets.BB_ENV_CANARY }}
         run: |
           python3 - <<'PY'
           import hashlib
@@ -67,4 +68,7 @@ jobs:
           ):
               print(f"{key.lower()}={os.environ.get(key, '')}")
           print("marker_sha256=" + hashlib.sha256(marker.encode()).hexdigest())
+          canary = os.environ.get("CANARY", "")
+          print("canary_present=" + ("1" if canary else "0"))
+          print("canary_sha256=" + hashlib.sha256(canary.encode()).hexdigest())
           PY
