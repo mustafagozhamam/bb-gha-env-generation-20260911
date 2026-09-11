@@ -1,0 +1,70 @@
+name: Protected environment generation fixture
+
+on:
+  workflow_dispatch:
+    inputs:
+      marker:
+        description: Synthetic marker for this run
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  pre-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record immutable pre-environment tuple
+        env:
+          MARKER: ${{ inputs.marker }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+
+          marker = os.environ["MARKER"]
+          for key in (
+              "GITHUB_REPOSITORY",
+              "GITHUB_REPOSITORY_ID",
+              "GITHUB_WORKFLOW",
+              "GITHUB_WORKFLOW_REF",
+              "GITHUB_WORKFLOW_SHA",
+              "GITHUB_REF",
+              "GITHUB_SHA",
+              "GITHUB_RUN_ID",
+              "GITHUB_RUN_ATTEMPT",
+          ):
+              print(f"{key.lower()}={os.environ.get(key, '')}")
+          print("marker_sha256=" + hashlib.sha256(marker.encode()).hexdigest())
+          PY
+
+  protected:
+    needs: pre-environment
+    runs-on: ubuntu-latest
+    environment:
+      name: protected-gen
+    steps:
+      - name: Record immutable approved tuple
+        env:
+          MARKER: ${{ inputs.marker }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+
+          marker = os.environ["MARKER"]
+          for key in (
+              "GITHUB_REPOSITORY",
+              "GITHUB_REPOSITORY_ID",
+              "GITHUB_WORKFLOW",
+              "GITHUB_WORKFLOW_REF",
+              "GITHUB_WORKFLOW_SHA",
+              "GITHUB_REF",
+              "GITHUB_SHA",
+              "GITHUB_RUN_ID",
+              "GITHUB_RUN_ATTEMPT",
+          ):
+              print(f"{key.lower()}={os.environ.get(key, '')}")
+          print("marker_sha256=" + hashlib.sha256(marker.encode()).hexdigest())
+          PY
